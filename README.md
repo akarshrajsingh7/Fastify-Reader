@@ -7,6 +7,9 @@ Fastify Reader is a Python application designed to enhance reading efficiency by
 ## Demo
 
 For a demonstration of Fastify Reader in action, visit the [Application Demo](https://huggingface.co/spaces/akarshrajsingh7/Fastify-Reader).
+<p align="center">
+  <img src="https://github.com/akarshrajsingh7/Fastify-Reader/blob/main/Demo.png" alt="Fastify Reader Logo" width="100%" height="400">
+</p>
 
 ## Features
 
