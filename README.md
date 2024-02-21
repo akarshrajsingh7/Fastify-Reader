@@ -44,12 +44,6 @@ Follow these steps to get started with Fastify Reader:
 
    Once the application is running, you can access it through your web browser.
 
-4. **Upload Text Documents:**
-   Upload your text documents in PDF or text format to the application interface.
-
-5. **View Highlighted Text:**
-   Fastify Reader will process the uploaded text and display the modified version with bold segments, enabling you to read and grasp the content more effectively.
-
 ## Contributing
 
 Fastify Reader welcomes contributions from the community! If you encounter any issues, have ideas for improvements, or would like to contribute code, please feel free to open an issue or submit a pull request on GitHub.
