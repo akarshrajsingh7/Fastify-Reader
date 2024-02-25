@@ -7,7 +7,10 @@ from base64 import b64encode
 from fpdf import FPDF
 import io, string, re, math
 from io import StringIO
+from pathlib import Path
 from streamlit_pdf_viewer import pdf_viewer
+
+_here = Path(__file__).parent
 
 # Importing the Fastify Class
 from fast_reader import Fastify_Reader
@@ -62,12 +65,24 @@ with st.sidebar:
     st.image("Logo.jpg")
     st.markdown("<div style='text-align: center;'>How fast can you read?</div>", unsafe_allow_html=True)
 
+# Example inputs
+example_text = '''
+Did you know that your brain is capable of reading this text faster than you might think? It's true! Our brains have an incredible capacity for processing information rapidly, and with the right techniques, you can harness this power to become a speed reading master.
+
+Speed reading isn't just about skimming through text; it's about training your brain to absorb and comprehend information at a much quicker pace. By utilizing strategies like chunking, minimizing subvocalization, and expanding your peripheral vision, you can significantly increase your reading speed without sacrificing understanding.
+
+Imagine being able to plow through emails, reports, and articles in half the time it takes you now. With speed reading, that dream can become a reality. Not only will you save time, but you'll also improve your productivity and unlock new opportunities for learning and growth.
+
+So why wait? Dive into the world of speed reading today and unlock your brain's full potential. With practice and dedication, you'll be amazed at how quickly you can conquer even the most daunting reading tasks. Get started now and watch your reading speed soar!
+'''
+
+
 # Main Page
 tab1, tab2= st.tabs(["Input Text", "PDF file"])
 
 # First tab where Text is input
 with tab1:
-    user_input = st.text_input("Enter some text")
+    user_input = st.text_input("Enter some text", example_text)
 
     # Compare Check Box
     compare = st.checkbox('Compare with Fastified Text', value=False, key='compare')
@@ -89,11 +104,11 @@ with tab1:
 
                 with col1:
                     with st.container(border = True):
-                        st.markdown("<div style='text-align: center;'><strong>Original PDF viewer</strong></div>", unsafe_allow_html=True)
+                        st.markdown("<div style='text-align: center;'><strong>Original Text</strong></div>", unsafe_allow_html=True)
                         pdf_viewer(input = text_to_pdf(text), width = 600)
                 with col2:
                     with st.container(border = True):
-                        st.markdown("<div style='text-align: center;'><strong>Fastified PDF viewer</strong></div>", unsafe_allow_html=True)
+                        st.markdown("<div style='text-align: center;'><strong>Fastified Text</strong></div>", unsafe_allow_html=True)
                         pdf_viewer(text_to_pdf_fastify(text), width = 600)
                 
             else:
@@ -131,11 +146,11 @@ with tab2:
                     
                     with col1:
                         with st.container(border = True):
-                            st.markdown("<div style='text-align: center;'><strong>Original PDF viewer</strong></div>", unsafe_allow_html=True)
+                            st.markdown("<div style='text-align: center;'><strong>Original Text</strong></div>", unsafe_allow_html=True)
                             pdf_viewer(text_to_pdf(text), width = 600)
                     with col2:
                         with st.container(border = True):
-                            st.markdown("<div style='text-align: center;'><strong>Fastified PDF viewer</strong></div>", unsafe_allow_html=True)
+                            st.markdown("<div style='text-align: center;'><strong>Fastified Text</strong></div>", unsafe_allow_html=True)
                             pdf_viewer(text_to_pdf_fastify(text), width = 600)
 
                 else:
