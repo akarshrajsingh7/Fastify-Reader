@@ -1,3 +1,5 @@
+import warnings
+warnings.filterwarnings("ignore")
 import streamlit as st
 from PyPDF2 import PdfReader
 from concurrent.futures import ThreadPoolExecutor
@@ -5,6 +7,7 @@ from base64 import b64encode
 from fpdf import FPDF
 import io, string, re, math
 from io import StringIO
+from streamlit_pdf_viewer import pdf_viewer
 
 # Importing the Fastify Class
 from fast_reader import Fastify_Reader
@@ -20,10 +23,11 @@ def pdf_extract_text(pdf_docs):
             text += page.extract_text()
     return text
 
-def text_to_pdf_fastify(text):    
+def text_to_pdf_fastify(txt):    
     '''
     Basic function to apply fastification on the input text and convert it to bytes for PDF rendering
     '''
+    text = (txt + '.')[:-1]
     # Applying the Fastify Logic
     bold_text = Fastify_Reader(text).fastify()
     bold_text = bold_text.encode('latin-1', 'ignore').decode('latin-1') #since fpdf works with latin-1 encoding
@@ -33,31 +37,26 @@ def text_to_pdf_fastify(text):
     pdf.add_page()
     pdf.set_font("Arial", size = 12)
     pdf.multi_cell(0, 10, txt = bold_text, markdown=True)
-    return bytes(pdf.output()), bold_text
+    return bytes(pdf.output())
 
-def text_to_pdf(text):
+def text_to_pdf(txt):
     '''
     Basic function on the input text and convert it to bytes for PDF rendering
     '''
+    text = (txt + '.')[:-1]
     text = text.encode('latin-1', 'ignore').decode('latin-1') #since fpdf works with latin-1 encoding
     # Creating the PDF
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size = 12)
     pdf.multi_cell(0, 10, txt = text, markdown=True)
-    return bytes(pdf.output()), text
+    return bytes(pdf.output())
 
 #Setting the page config
 st.set_page_config(page_title="Fastify Reader",
                    page_icon=":books:",
                    layout="wide")
 
-# Due to browser cache and streamlit issue, sometimes the PDFs are not rendered properly.
-note_text = """
-                    If the PDF is not being rendered by your browser, <br>
-                    &emsp;1. Try this link - (https://akarshrajsingh7-fastify-reader.hf.space/) <br>
-                    &emsp;2. Download the PDF and open it in a PDF viewer.
-                    """
 # Sidebar
 with st.sidebar:
     st.image("Logo.jpg")
@@ -79,52 +78,34 @@ with tab1:
         with st.spinner("Processing"):
             text = user_input
 
-            # Generating base64 encoded text bytes for PDF rendering
-            original_pdf = b64encode(text_to_pdf(text)[0]).decode("utf-8")
-            base64_pdf = b64encode(text_to_pdf_fastify(text)[0]).decode("utf-8")
-
-            # Embedding the PDFs in the HTML
-            original_display = f'<embed src="data:application/pdf;base64,{original_pdf}" width = "100%" height = 600 type="application/pdf" download="original.pdf">'
-            pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width = "100%" height = 600 type="application/pdf" download="Modified.pdf">'
-            
             # Compare Logic implementation
             if compare:
                 col1, col2, col3 = st.columns(3)
                 with col3:
-                    st.download_button(label="Download Fastified PDF", data=text_to_pdf_fastify(text)[0], file_name='output.pdf', mime='application/pdf')
+                    st.download_button(label="Download Fastified PDF", data=text_to_pdf_fastify(text), file_name='output.pdf', mime='application/pdf')
                 
                 # Side by Side comparison
                 col1, col2 = st.columns([1, 1], gap="small")
+
                 with col1:
                     with st.container(border = True):
                         st.markdown("<div style='text-align: center;'><strong>Original PDF viewer</strong></div>", unsafe_allow_html=True)
-                        st.markdown(original_display, unsafe_allow_html=True)
+                        pdf_viewer(input = text_to_pdf(text), width = 600)
                 with col2:
                     with st.container(border = True):
                         st.markdown("<div style='text-align: center;'><strong>Fastified PDF viewer</strong></div>", unsafe_allow_html=True)
-                        st.markdown(pdf_display, unsafe_allow_html=True)
+                        pdf_viewer(text_to_pdf_fastify(text), width = 600)
                 
-                # Browser Cache Note
-                st.markdown(f"""
-                        <div style='background-color: #FFD580; border-radius: 5px;'>
-                            <p style='color: black;'><strong>Note</strong> - {note_text}</p>
-                        </div>
-                        """, unsafe_allow_html=True)
             else:
-                # No Comparisons
+                # # No Comparisons
                 col1, col2, col3 = st.columns(3)
-                with col2:
-                    st.download_button(label="Download Fastified PDF", data=text_to_pdf_fastify(text)[0], file_name='output.pdf', mime='application/pdf')
-                with st.container(border = True):
-                    st.markdown("<div style='text-align: center;'><strong>Fastified PDF viewer</strong></div>", unsafe_allow_html=True)
-                    st.markdown(pdf_display, unsafe_allow_html=True)
+                with col1:
+                    st.download_button(label="Download Fastified PDF", data=text_to_pdf_fastify(text), file_name='output.pdf', mime='application/pdf')
                 
-                # Browser Cache Note
-                    st.markdown(f"""
-                        <div style='background-color: #FFD580; border-radius: 5px;'>
-                            <p style='color: black;'><strong>Note</strong> - {note_text}</p>
-                        </div>
-                        """, unsafe_allow_html=True)
+                with st.container():
+                    st.markdown("<div><strong>Fastified PDF viewer</strong></div>", unsafe_allow_html=True)
+                    pdf_viewer(text_to_pdf_fastify(text), width = 600)
+                
     
 # Added support for PDFs having text
 with tab2:
@@ -139,49 +120,30 @@ with tab2:
             with st.spinner("Processing"):
                 text = pdf_extract_text(uploaded_file)
 
-                # Generating base64 encoded text bytes for PDF rendering
-                original_pdf = b64encode(text_to_pdf(text)[0]).decode("utf-8")
-                base64_pdf = b64encode(text_to_pdf_fastify(text)[0]).decode("utf-8")
-
-                # Embedding the PDFs in the HTML
-                original_display = f'<embed src="data:application/pdf;base64,{original_pdf}" width = "100%" height = 600 type="application/pdf">'
-                pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width = "100%" height = 600 type="application/pdf">'
-
                 # Compare Logic implementation
                 if compare:
                     col1, col2, col3 = st.columns(3)
                     with col3:
-                        st.download_button(label="Download Fastified PDF", data=text_to_pdf_fastify(text)[0], file_name='output.pdf', mime='application/pdf')
+                        st.download_button(label="Download Fastified PDF", data=text_to_pdf_fastify(text), file_name='output.pdf', mime='application/pdf')
                     
                     # Side by Side comparison
                     col1, col2 = st.columns([1, 1], gap="small")
+                    
                     with col1:
                         with st.container(border = True):
                             st.markdown("<div style='text-align: center;'><strong>Original PDF viewer</strong></div>", unsafe_allow_html=True)
-                            st.markdown(original_display, unsafe_allow_html=True)
+                            pdf_viewer(text_to_pdf(text), width = 600)
                     with col2:
                         with st.container(border = True):
                             st.markdown("<div style='text-align: center;'><strong>Fastified PDF viewer</strong></div>", unsafe_allow_html=True)
-                            st.markdown(pdf_display, unsafe_allow_html=True)
-                    # Browser Cache Note
-                    st.markdown(f"""
-                        <div style='background-color: #FFD580; border-radius: 5px;'>
-                            <p style='color: black;'><strong>Note</strong> - {note_text}</p>
-                        </div>
-                        """, unsafe_allow_html=True)
+                            pdf_viewer(text_to_pdf_fastify(text), width = 600)
+
                 else:
                     # No Comparison
                     col1, col2, col3 = st.columns(3)
-                    with col2:
-                        st.download_button(label="Download Fastified PDF", data=text_to_pdf_fastify(text)[0], file_name='output.pdf', mime='application/pdf')
-                    with st.container(border = True):
-                        st.markdown("<div style='text-align: center;'><strong>Fastified PDF viewer</strong></div>", unsafe_allow_html=True)
-                        st.markdown(pdf_display, unsafe_allow_html=True)
+                    with col1:
+                        st.download_button(label="Download Fastified PDF", data=text_to_pdf_fastify(text), file_name='output.pdf', mime='application/pdf')
                     
-                    # Browser Cache Note
-                    st.markdown(f"""
-                        <div style='background-color: #FFD580; border-radius: 5px;'>
-                            <p style='color: black;'><strong>Note</strong> - {note_text}</p>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    
+                    with st.container():
+                        st.markdown("<div><strong>Fastified PDF viewer</strong></div>", unsafe_allow_html=True)
+                        pdf_viewer(text_to_pdf_fastify(text), width = 500)
