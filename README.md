@@ -2,7 +2,9 @@
   <img src="https://github.com/akarshrajsingh7/Fastify-Reader/blob/main/Logo.jpg" alt="Fastify Reader Logo" width="200" height="200">
 </p>
 
-Fastify Reader is a Python application designed to enhance reading efficiency by allowing users to upload text in PDF and text formats and receive a modified text output where parts of words are highlighted. This innovative approach to text presentation draws inspiration from concepts like Bionic Reading, aiming to help users read and comprehend text faster and more effectively.
+As someone who is knee-deep in prep for my master exam, I found myself wishing for a way to breeze through texts faster. Fast forward few hours,  I ended up writing a code to do the same. And that’s when I realised, it actually works. So sharing it with you all! 
+
+🚀🚀 Excited to introduce  - Fastify Reader📚 - the app that turbocharges your reading speed!  Inspired by concepts like Bionic Reading, it lets you devour text at lightning speed and somehow also enables you to grasp concepts in texts much faster!
 
 ## Demo
 
